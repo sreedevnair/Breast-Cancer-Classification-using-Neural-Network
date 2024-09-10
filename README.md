@@ -16,6 +16,8 @@ from sklearn.model_selection import train_test_split
 
 Here, we are just importing all the neccessary modules for the data handling and pre processing.
 
+<br>
+
 ### 2. Loading the dataset
 ```
 breast_cancer_dataset = sklearn.datasets.load_breast_cancer()
@@ -58,6 +60,8 @@ We will not use this inside our neural network.
 ### 2.4 "feature_names" key
 It's an array of all the feature names.
 
+<br>
+
 ## 3. Converting the dataset into a DataFrame
 ```
 df = pd.DataFrame(breast_cancer_dataset.data, columns = breast_cancer_dataset.feature_names)
@@ -68,11 +72,15 @@ We are using `pd.DataFrame()` function to convert our loaded dataset in a pandas
 
 This DataFrame still doesn't contain the target column yet.
 
+<br>
+
 ## 4. Adding target column to our DataFrame
 ```
 df['label'] = breast_cancer_dataset.target
 ```
 We are creating a new column names **label** that will contain the target value of each row.
+
+<br>
 
 ### 5. Analyzing our data
 ```
@@ -110,6 +118,8 @@ It returns a new DataFrame showing the average values of those columns for the r
 
 For example, one of the features in our dataset is *radius*. This function will calculate the average value of all the *radius* where the label is *0* and then it will calculate the average value of all the *radius* where the label is *1*.
 
+<br>
+
 ### 6. Splitting our dataset
 ```
 X = df.drop(columns='label')
@@ -126,6 +136,8 @@ We need to pass the feature set and the target set as the parameter. We can also
 
 1. `test_size` : By default it's .25, which means 25% of the dataset will be used for testing and the other 75% for the training.
 2. `random_state` : This is to make sure that our data split remains same during every execution.
+
+<br>
 
 ### 7. Standardizing our data
 ```
@@ -163,6 +175,8 @@ The `fit_transform()` function does two things :-
 
 Similarly, we also standardize the `X_test` data and stores the new data in `X_test_std`.
 
+<br>
+
 ### 8. Building the Neural Network
 
 #### 8.1. Importing TensorFlow
@@ -196,6 +210,8 @@ The activation function applied to this layer is *ReLU* (Rectified Linear Unit).
 
 ##### d. `keras.layers.Dense(2, activation="sigmoid")`
 This adds another dense layer with only 2 neurons, because the model is predicting 2 possible classes (malignant and benign).
+<br>
+<br>
 `activation="sigmoid"` outputs a probability between 0 and 1 for each of the two neurons. And which neuron has the highest probability is activated (outputed).
 
 #### 8.3. Configuring the model for training
@@ -218,3 +234,126 @@ So basically, sparse categorical crossentropy is used to measure how far the pre
 ##### c. `metrics=['accuracy']`
 Metrics are used to evaluate the performance of the model during training and testing. **accuracy** is a common metric for classification problems. It calculates the percentage of correct predictions out of the total predictions. 
 When *loss* decreases, the *metrics* value will increase.
+
+#### 8.3. Training the model
+```
+history = model.fit(X_train_std, y_train, validation_split=0.1, epochs=10)
+```
+
+Here, we train the model using the standardized training set `(X_train_std, y_train)`.
+
+##### a. **Epochs**
+An epoch is one complete pass through the entire training dataset.<br>
+`epochs=10`: This specifies that the model should go through the entire X_train_std and y_train datasets 10 times, adjusting its parameters after each pass.
+
+##### b. **Validation Split**
+During the training process, when you use `validation_split=0.1` in` model.fit()`, 10% of our training data ( X_train_std  and    y_train ) is reserved as the validation set. This validation set is used to evaluate the model’s performance after each epoch, but it’s not used to adjust the model’s parameters (weights and biases) like the training set is.
+
+##### c. **history**
+It stores information about the training process, such as loss and accuracy, which can be used to analyze how the model performed over time.
+
+##### What Happens During `model.fit()`?
+1. **Forward Pass on Training Data:**<br>
+    a. The model makes predictions on the training data `X_train_std`.<br>
+    b. Loss is calculated based on how far the predictions are from the true labels `y_train`.<br>
+2. **Backward Pass (Gradient Descent):**<br>
+    The optimizer (like Adam) adjusts the model's weights to minimize the loss based on training data.<br>
+3. **Forward Pass on Validation Data:**<br>
+    a. After each epoch, the model makes predictions on the *validation set*.<br>
+    b. The validation loss and accuracy is calculated to check how well the model is performing on unseen data.<br>
+    c. This helps detect overfitting and underfitting.<br>
+4. **No Backward Pass on Validation Set:**<br>
+    The model does not adjust its parameters based on the validation set. It’s purely used to monitor performance.<br>
+5. **Repeat for Each Epoch:**<br>
+    Training (with updates) happens on the training set, and after each epoch, the model is evaluated on the validation set.
+
+##### How does the validation loss and accuracy helps in detecting overfitting ?
+1. At some point, if the model gets too focused on the training data, it starts memorizing specific details or noise in the training images that don't generalize well.
+2. The **training loss keeps decreasing**, but the **validation loss starts increasing**. This means the model is doing great on the training data but poorly on the validation data.
+3. Similarly, the **training accuracy becomes very high**, but the **validation accuracy stops improving or gets worse**. This is overfitting.
+
+### 9. Visualizing Accuracy and Loss
+```
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epochs')
+
+plt.legend(['Training', 'Validation'], loc = 'lower right')
+```
+
+```
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epochs')
+
+plt.legend(['Training', 'Validation'], loc = 'lower right')
+```
+Here, we are just plotting the **training accuracy and loss** and **validation accuracy and loss**.
+
+### 10. Evaluating the model
+```
+loss, accuracy = model.evaluate(X_test_std, y_test)
+
+print("Accuracy of the model is :", accuracy)
+print("Loss of the model is :", loss)
+```
+Once the model is trained, we can evalute the model using the test dataset ```(X_test_std, y_test)```. This will return the model's prediction loss and its accuracy.
+
+### 11. Predicting target values for the `X_test_std`
+```
+y_pred = model.predict(X_test_std)
+```
+
+```
+print(y_pred.shape)
+print(y_pred[0])
+```
+```
+Output :-
+>>> (114, 2)
+>>> [0.22896117 0.5600809 ]
+```
+Here, instead of calculating the overall performance of the model on the `X_test_std` like we did above, we predict every **target value** for each sample. 
+
+Since the testing set contains 142 rows, it will predict 142 target values. Each target value is a list made up of 2 elements, i.e. the probabilities of the two output neuron/classes (Malignant and Benign respectivly).
+
+The neuron with the highest probability is activated.
+
+```
+print(y_pred)
+```
+
+```
+Output :-
+>>> [[2.28961170e-01 5.60080886e-01]
+    [9.53364015e-01 5.67435734e-02]
+    [9.12674606e-01 1.64341614e-01]
+    ...............................
+    [9.99702573e-01 3.24228755e-03]]
+```
+
+### Converting the prediction probability into class labels
+```
+y_pred_labels = [np.argmax(i) for i in y_pred ]
+
+print(y_pred_labels)
+```
+
+```
+Output :-
+>>> [1, 0, 0, 1, 1, 0, 0, 0, 1, ........, 1, 1, 0, 1, 1, 0]
+```
+
+So what `np.argmax(i)` does is that, first we need to pass a list `i` as the parameter, and then it return the index number of the largest element present in that list.
+
+Hence, if the first neuron (i.e. Malignant) has the highest probability, it will output **0** (which also represents Malignant in our *label* column). And if the second neuron (i.e. Benign) has the highest probability, it will output **1** (which represents Benign in our *label* column)
+
+
+----
+
