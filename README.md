@@ -6,7 +6,7 @@ We will be using scikit-learn for data processing and TensorFlow to create the n
 ## Code by code explaination :-
 
 ### 1. Importing all the modules
-```
+```python
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ Here, we are just importing all the neccessary modules for the data handling and
 <br>
 
 ### 2. Loading the dataset
-```
+```python
 breast_cancer_dataset = sklearn.datasets.load_breast_cancer()
 
 print("Breast Cancer Data :-")
@@ -63,7 +63,7 @@ It's an array of all the feature names.
 <br>
 
 ## 3. Converting the dataset into a DataFrame
-```
+```python
 df = pd.DataFrame(breast_cancer_dataset.data, columns = breast_cancer_dataset.feature_names)
 ```
 We are using `pd.DataFrame()` function to convert our loaded dataset in a pandas' DataFrame. It takes 2 arguments :-
@@ -75,7 +75,7 @@ This DataFrame still doesn't contain the target column yet.
 <br>
 
 ## 4. Adding target column to our DataFrame
-```
+```python
 df['label'] = breast_cancer_dataset.target
 ```
 We are creating a new column names **label** that will contain the target value of each row.
@@ -83,7 +83,7 @@ We are creating a new column names **label** that will contain the target value 
 <br>
 
 ### 5. Analyzing our data
-```
+```python
 df.shape
 
 df.isnull().sum()
@@ -121,7 +121,7 @@ For example, one of the features in our dataset is *radius*. This function will 
 <br>
 
 ### 6. Splitting our dataset
-```
+```python
 X = df.drop(columns='label')
 y = df['label']
 
@@ -140,7 +140,7 @@ We need to pass the feature set and the target set as the parameter. We can also
 <br>
 
 ### 7. Standardizing our data
-```
+```python
 from sklearn.preprocessing import StandardScaler
 
 scaler = StandardScaler()
@@ -180,7 +180,7 @@ Similarly, we also standardize the `X_test` data and stores the new data in `X_t
 ### 8. Building the Neural Network
 
 #### 8.1. Importing TensorFlow
-```
+```python
 import tensorflow as tf
 tf.random.set_seed(3)
 from tensorflow import keras
@@ -190,7 +190,7 @@ As usual, we are import TensorFlow to create the neural network.
 The `tf.random.set_seed(3)` functions sets the global random seed for TensorFlow's random number generators to 3. By setting a seed, TensorFlow ensures that the random processes (like initializing weights in a neural network) will produce the same results every time we run the code. It's like using `random_state` when splitting our dataset.
 
 #### 8.2. Creating the NN model
-```
+```python
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(30,)),
     keras.layers.Dense(20, activation="relu"),
@@ -215,7 +215,7 @@ This adds another dense layer with only 2 neurons, because the model is predicti
 `activation="sigmoid"` outputs a probability between 0 and 1 for each of the two neurons. And which neuron has the highest probability is activated (outputed).
 
 #### 8.3. Configuring the model for training
-```
+```python
 model.compile(optimizer='adam', loss="sparse_categorical_crossentropy", metrics=['accuracy'])
 ```
 We use `model.compile()` function to configure the model like specifying the optimizer, the loss function, and the metrics that the model should track during training and evaluation.
@@ -236,7 +236,7 @@ Metrics are used to evaluate the performance of the model during training and te
 When *loss* decreases, the *metrics* value will increase.
 
 #### 8.3. Training the model
-```
+```python
 history = model.fit(X_train_std, y_train, validation_split=0.1, epochs=10)
 ```
 
@@ -273,7 +273,7 @@ It stores information about the training process, such as loss and accuracy, whi
 3. Similarly, the **training accuracy becomes very high**, but the **validation accuracy stops improving or gets worse**. This is overfitting.
 
 ### 9. Visualizing Accuracy and Loss
-```
+```python
 plt.plot(history.history['accuracy'])
 plt.plot(history.history['val_accuracy'])
 
@@ -284,7 +284,7 @@ plt.xlabel('Epochs')
 plt.legend(['Training', 'Validation'], loc = 'lower right')
 ```
 
-```
+```python
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 
@@ -297,7 +297,7 @@ plt.legend(['Training', 'Validation'], loc = 'lower right')
 Here, we are just plotting the **training accuracy and loss** and **validation accuracy and loss**.
 
 ### 10. Evaluating the model
-```
+```python
 loss, accuracy = model.evaluate(X_test_std, y_test)
 
 print("Accuracy of the model is :", accuracy)
@@ -306,11 +306,11 @@ print("Loss of the model is :", loss)
 Once the model is trained, we can evalute the model using the test dataset ```(X_test_std, y_test)```. This will return the model's prediction loss and its accuracy.
 
 ### 11. Predicting target values for the `X_test_std`
-```
+```python
 y_pred = model.predict(X_test_std)
 ```
 
-```
+```python
 print(y_pred.shape)
 print(y_pred[0])
 ```
@@ -325,7 +325,7 @@ Since the testing set contains 142 rows, it will predict 142 target values. Each
 
 The neuron with the highest probability is activated.
 
-```
+```python
 print(y_pred)
 ```
 
@@ -339,7 +339,7 @@ Output :-
 ```
 
 ### Converting the prediction probability into class labels
-```
+```python
 y_pred_labels = [np.argmax(i) for i in y_pred ]
 
 print(y_pred_labels)
